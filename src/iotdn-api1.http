@@ -1,0 +1,6 @@
+@iotdn_api1_HostAddress = http://localhost:5148
+
+GET {{iotdn_api1_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -26,7 +26,7 @@ resource "azurerm_resource_group" "rg" {
 
 # 2. ADLS Gen2 Storage Account
 resource "azurerm_storage_account" "sa" {
-  name                     = "iotlearn2024rara" # Updated to unique name
+  name                     = "iotlearn2024ned" # Updated to unique name
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"

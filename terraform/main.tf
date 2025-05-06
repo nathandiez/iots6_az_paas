@@ -87,7 +87,7 @@ resource "azurerm_linux_web_app" "api_app" {
 data "azurerm_linux_web_app" "api_app_data" {
   name                = azurerm_linux_web_app.api_app.name
   resource_group_name = azurerm_resource_group.rg.name
-  
+
   depends_on = [azurerm_linux_web_app.api_app]
 }
 
@@ -96,8 +96,8 @@ data "azurerm_client_config" "current" {}
 
 # 8. Grant App Service Managed Identity access to Storage Account
 resource "azurerm_role_assignment" "adls_write_access" {
-  scope                = azurerm_storage_account.sa.id        # The resource ID the role applies to (the storage account)
-  role_definition_name = "Storage Blob Data Contributor"      # The role needed to write data
+  scope                = azurerm_storage_account.sa.id                                    # The resource ID the role applies to (the storage account)
+  role_definition_name = "Storage Blob Data Contributor"                                  # The role needed to write data
   principal_id         = data.azurerm_linux_web_app.api_app_data.identity[0].principal_id # The principal ID of the App Service's Managed Identity
 
   depends_on = [
@@ -111,9 +111,9 @@ resource "azurerm_role_assignment" "current_user_access" {
   scope                = azurerm_storage_account.sa.id
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = data.azurerm_client_config.current.object_id
-  
+
   # Optional: Add a description to clarify this is for development access
-  description          = "Grant developer access to storage account for testing and debugging"
+  description = "Grant developer access to storage account for testing and debugging"
 
   depends_on = [
     azurerm_storage_account.sa

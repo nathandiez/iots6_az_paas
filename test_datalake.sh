@@ -3,7 +3,7 @@
 
 # Configuration
 API_URL="https://iot-azure-api-app-ned.azurewebsites.net/api/ingest"
-STORAGE_ACCOUNT="iotlearn2024rara"
+STORAGE_ACCOUNT="iotlearn2024ned"
 CONTAINER="rawdata"
 
 # Generate test data

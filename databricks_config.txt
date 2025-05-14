@@ -1,0 +1,18 @@
+Databricks Configuration
+========================
+Workspace URL: https://adb-3755423973821092.12.azuredatabricks.net
+Cluster ID: 0514-005203-cb9cn13m
+Storage Account: iotlearn2024u52jna
+Container: rawdata
+SAS Token: st=2025-05-13T00%3A52Z&se=2026-05-14T00%3A52Z&sp=racwdl&sv=2022-11-02&sr=c&sig=%2BKgn0fK2F9KI0D9vT9aKlC9Xn3rv5sNJPfmibuUZHec%3D
+
+To access Databricks:
+1. Go to: https://adb-3755423973821092.12.azuredatabricks.net
+2. Sign in with your Azure AD account (nathandiez12_gmail.com#EXT#@nathandiez12gmail.onmicrosoft.com)
+3. Navigate to Compute > All Clusters
+4. Find the cluster named: iot-minimal-cluster
+5. Start the cluster if it's not running
+
+If you see "Unable to view page" error:
+- Run: az login
+- Then visit the URL again

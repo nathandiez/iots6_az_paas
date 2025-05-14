@@ -3,7 +3,7 @@
 
 # Configuration
 API_URL="https://iot-azure-api-app-ned.azurewebsites.net/api/ingest"
-STORAGE_ACCOUNT="iotlearn2024ned"
+STORAGE_ACCOUNT="iotlearn2024ned7a9b31c"  # Updated to the new storage account name
 CONTAINER="rawdata"
 
 # Generate test data
@@ -85,7 +85,6 @@ az storage fs file download \
   --account-name "$STORAGE_ACCOUNT" \
   --auth-mode login \
   -o none
-
 
 echo ""
 echo "Contents of last record:"

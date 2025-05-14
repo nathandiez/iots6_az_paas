@@ -141,18 +141,6 @@ if [ -n "$DATABRICKS_NAME" ]; then
       --name $DATABRICKS_NAME \
       --query id -o tsv)
     
-    # Create role assignment for Databricks
-    az role assignment create \
-      --assignee $PRINCIPAL_ID \
-      --role "Contributor" \
-      --scope $DATABRICKS_ID 2>/dev/null || echo "Role already assigned"
-    
-    # Create role assignment for resource group
-    az role assignment create \
-      --assignee $PRINCIPAL_ID \
-      --role "Contributor" \
-      --scope "/subscriptions/$SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP" 2>/dev/null || echo "Role already assigned"
-    
     echo "Databricks access configured."
     
     # Wait for permissions to propagate

@@ -93,7 +93,7 @@ resource "azurerm_service_plan" "asp" {
 
 # 5. App Service (Linux Web App for .NET API)
 resource "azurerm_linux_web_app" "api_app" {
-  name                = "iot-api-4serveconfig"  # STATIC NAME 
+  name                = "iot-api-4serveconfig" # STATIC NAME 
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   service_plan_id     = azurerm_service_plan.asp.id

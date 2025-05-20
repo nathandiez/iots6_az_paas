@@ -1,0 +1,5 @@
+azure_client_id     = "a650b113-d806-4a25-86e8-b0a0365f8ccd"
+azure_client_secret = "bVY8Q~jCfbkgq7N.szFpIZ02seqNG1B_YWRaubNU"
+azure_tenant_id     = "8b359f4c-a84f-4876-8eeb-e312a7a2aac5"
+subscription_id     = "c1508b64-fb45-46f5-bf88-511ae65059d0"
+databricks_host     = "https://adb-2740907046982839.19.azuredatabricks.net"

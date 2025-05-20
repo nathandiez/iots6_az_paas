@@ -1,0 +1,96 @@
+{
+  "device_list": [
+    {
+      "device_id": "Attic06",
+      "name": "Attic",
+      "enabled": 1
+    },
+    {
+      "device_id": "MasterBed03",
+      "name": "MasterBed",
+      "enabled": 1
+    }
+  ],
+  "device_global_config": {
+    "heartbeat_publish_period": 20000,
+    "motion_cooldown_wait_period": 30000,
+    "motion_check_period": 1000,
+    "switch_check_period": 1000,
+    "temperature_check_period": 2000,
+    "i2c_temp_sensor_pins": {
+      "i2c_scl": 17,
+      "i2c_sda": 16
+    },
+    "onewire_ds18b20_pin": {
+      "pin": 22
+    },
+    "motion_sensor_pin": {
+      "pin": 16
+    },
+    "switch_sensor_pin": {
+      "pin": 14
+    },
+    "remote_logger": {
+      "http": {
+        "enabled": false,
+        "url": "http://esdserveconfig.local:5000/terminal"
+      },
+      "mqtt": {
+        "enabled": false,
+        "base_topic": "iots4/ulog"
+      }
+    },
+    "fan_step_controller_config": {
+      "enabled": true,
+      "manual_override": {
+        "enabled": false,
+        "fans_active": 3
+      },
+      "pins": [4, 5, 6, 7, 8, 9],
+      "temp_min": 20.0,
+      "temp_max": 30.0,
+      "hysteresis": 1.0
+    },
+    "fan_pwm_controller_config": {
+      "enabled": false,
+      "manual_override": {
+        "enabled": false,
+        "manual_dutycycle": 30
+      },
+      "pwm_pin": 15,
+      "pwm_freq": 64,
+      "temp_min": 20.0,
+      "temp_max": 50.0,
+      "fan_min_duty": 0,
+      "fan_max_duty": 100,
+      "hysteresis": 1.0
+    }
+  },
+  "iot_server_config": {
+    "offline_threshold": [0, 0, 3, 0, 0],
+    "error_log_cooldown_period": [0, 0, 10, 0, 0],
+    "offline_error_wait_period": [0, 0, 30, 0, 0],
+    "status_report_period": [0, 0, 0, 10, 0],
+    "sms_enabled": 0
+  },
+  "system_global_config": {
+    "check_config_file_period": 10000,
+    "mqtt_config": {
+      "enabled": false,
+      "broker": "192.168.6.87",
+      "port": 1883,
+      "user": "",
+      "password": "",
+      "base_topic": "iots4",
+      "ssl": false,
+      "reconnect_delay": 10000
+    },
+    "api_config": {
+      "enabled": true,
+      "url": "http://niotv1-dev-api.azurewebsites.net/api/ingest",
+      "api_key": "SuperSecretKey123ChangeMeLater",
+      "timeout_ms": 10000,
+      "retry_delay_ms": 5000
+    }
+  }
+}

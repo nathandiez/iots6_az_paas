@@ -99,7 +99,7 @@ resource "databricks_cluster" "niotv1_cluster" {
   spark_version           = "11.3.x-scala2.12"
   node_type_id            = "Standard_F4"
   num_workers             = 0
-  autotermination_minutes = 20
+  autotermination_minutes = 60
 
   spark_conf = {
     "spark.databricks.cluster.profile" = "singleNode"

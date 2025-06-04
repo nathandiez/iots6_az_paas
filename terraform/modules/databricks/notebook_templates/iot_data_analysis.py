@@ -4,7 +4,7 @@
 # 1. Configure storage access
 storage_account = "niotv1devdatalake"
 container = "rawdata"
-storage_key = "GFsUC5y5Q/TSeHc2Rf1JdXLvmzK74aHQQF+BmEuh6K4Qc4whM2ctnwA+SutJAHrGQZdCkPMcZ/qj+AStbayPQw=="
+storage_key = "${STORAGE_ACCOUNT_KEY}"
 
 # Set up connection
 spark.conf.set(

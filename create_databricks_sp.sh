@@ -11,6 +11,13 @@
 
 set -euo pipefail
 
+# Load environment variables from .env file if it exists
+if [ -f ".env" ]; then
+    echo "Loading environment variables from .env..."
+    source .env
+    echo "✅ Environment variables loaded"
+fi
+
 if [ $# -lt 2 ]; then
   cat <<EOF
 Usage: $0 <RESOURCE_GROUP> <WORKSPACE_NAME> [SUBSCRIPTION_ID]
@@ -83,6 +90,7 @@ azure_client_secret = "$CLIENT_SECRET"
 azure_tenant_id     = "$TENANT_ID"
 subscription_id     = "$SUBSCRIPTION_ID"
 databricks_host     = "https://${WS_URL}"
+user_email         = "${OWNER_EMAIL}"
 EOF
 echo "   ✅  Updated terraform/databricks-rbac/terraform.tfvars"
 echo

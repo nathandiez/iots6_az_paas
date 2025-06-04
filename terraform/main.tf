@@ -38,6 +38,12 @@ variable "config_files" {
   }
 }
 
+variable "api_key" {
+  description = "API key for authentication"
+  type        = string
+  sensitive   = true
+}
+
 ################################################################################
 #  Locals for naming                                                            #
 ################################################################################
@@ -106,6 +112,7 @@ module "ingest_api" {
 
   # data-lake storage account also uses the prefix
   storage_name        = local.datalake_storage_account_name
+  api_key             = var.api_key
 }
 
 ################################################################################

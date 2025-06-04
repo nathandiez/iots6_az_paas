@@ -21,8 +21,9 @@ variable "environment" {
 }
 
 variable "api_key" {
+  type        = string
+  sensitive   = true
   description = "API key for authentication"
-  default     = "SuperSecretKey123ChangeMeLater"
 }
 
 variable "storage_name" {
@@ -39,8 +40,41 @@ resource "azurerm_storage_account" "datalake" {
   location                 = var.location
   account_tier             = "Standard"
   account_replication_type = "LRS"
-  account_kind             = "StorageV2"
-  is_hns_enabled           = true  # Hierarchical namespace for Data Lake
+  account_kind             = "StorageV2"  # Required for static websites
+  
+  # Data Lake Gen2 requires hierarchical namespace
+  is_hns_enabled = true
+  
+  # Your existing settings
+  allow_nested_items_to_be_public = true
+  min_tls_version               = "TLS1_2"
+  enable_https_traffic_only     = true
+
+  # Extended timeouts to handle Azure provisioning delays
+  timeouts {
+    create = "45m"
+    read   = "20m"    
+    update = "45m"    
+    delete = "45m"    
+  }
+
+  # Enable static website after storage account is created
+  provisioner "local-exec" {
+    command = <<-EOT
+      sleep 30
+      az storage blob service-properties update \
+        --account-name ${self.name} \
+        --static-website \
+        --index-document index.html
+    EOT
+  }
+}
+
+# Add a time delay to ensure storage account is fully ready
+resource "time_sleep" "wait_for_storage" {
+  depends_on = [azurerm_storage_account.datalake]
+  
+  create_duration = "90s"  # Wait 90 seconds for Azure to fully provision
 }
 
 ###############################################################################
@@ -50,6 +84,9 @@ resource "azurerm_storage_account" "datalake" {
 resource "azurerm_storage_data_lake_gen2_filesystem" "rawdata" {
   name               = "rawdata"
   storage_account_id = azurerm_storage_account.datalake.id
+  
+  # Wait for storage account to be ready
+  depends_on = [time_sleep.wait_for_storage]
 }
 
 ###############################################################################

@@ -3,6 +3,21 @@
 
 set -e # Exit immediately if a command exits with a non-zero status.
 
+# Load environment variables from .env file
+if [ -f ".env" ]; then
+    echo "Loading environment variables from .env..."
+    source .env
+    export TF_VAR_api_key
+    export AZURE_CLIENT_ID
+    export AZURE_CLIENT_SECRET
+    export AZURE_TENANT_ID
+    export AZURE_SUBSCRIPTION_ID
+    export OWNER_EMAIL
+    echo "✅ Environment variables loaded"
+else
+    echo "⚠️  No .env file found"
+fi
+
 echo "-----------------------------------------------------------------------"
 echo " WARNING: Destructive Operation!"
 echo "-----------------------------------------------------------------------"
@@ -37,18 +52,61 @@ echo "Step 1: Running Terraform destroy to gracefully remove resources..."
 # First destroy Databricks RBAC (which depends on the workspace)
 if [ -d "terraform/databricks-rbac" ]; then
     echo "Destroying Databricks RBAC configuration..."
-    (cd terraform/databricks-rbac && terraform destroy --auto-approve) || echo "RBAC destruction failed, but continuing..."
+    
+    # Create terraform.tfvars with all required variables
+    echo "Creating terraform.tfvars from environment variables..."
+    mkdir -p terraform/databricks-rbac
+    cat > terraform/databricks-rbac/terraform.tfvars <<EOF
+azure_client_id     = "$AZURE_CLIENT_ID"
+azure_client_secret = "$AZURE_CLIENT_SECRET"
+azure_tenant_id     = "$AZURE_TENANT_ID"
+subscription_id     = "$AZURE_SUBSCRIPTION_ID"
+databricks_host     = "$DATABRICKS_HOST"
+user_email         = "${OWNER_EMAIL:-nathandiez12@gmail.com}"
+EOF
+    
+    # Temporarily modify the provider configuration to use variables instead of file
+    echo "Temporarily updating provider configuration to use variables..."
+    cd terraform/databricks-rbac
+    
+    # Backup the original main.tf
+    cp main.tf main.tf.backup
+    
+    # Replace the file() calls with variables
+    sed -i.tmp 's/jsondecode(file("${path.module}\/\.\.\/\.\.\/databricks-sp.json")).clientId/var.azure_client_id/g' main.tf
+    sed -i.tmp 's/jsondecode(file("${path.module}\/\.\.\/\.\.\/databricks-sp.json")).clientSecret/var.azure_client_secret/g' main.tf
+    sed -i.tmp 's/jsondecode(file("${path.module}\/\.\.\/\.\.\/databricks-sp.json")).tenantId/var.azure_tenant_id/g' main.tf
+    
+    echo "Initializing Databricks RBAC Terraform..."
+    terraform init -upgrade || echo "RBAC init failed, but continuing..."
+    terraform destroy --auto-approve || echo "RBAC destruction failed, but continuing..."
+    
+    # Restore the original main.tf
+    mv main.tf.backup main.tf
+    rm -f main.tf.tmp
+    
+    cd ../..
 fi
 
 # Then destroy main infrastructure
 echo "Destroying main infrastructure..."
-(cd terraform && terraform destroy --auto-approve) || echo "Main infrastructure destruction failed, but continuing..."
+echo "Initializing main Terraform..."
+(cd terraform && terraform init -upgrade) || echo "Main init failed, but continuing..."
 
-# Add this section to Step 1 of your destroy_all.sh script
+# Remove Key Vault from Terraform state to avoid the long deletion wait
+echo "Removing Key Vault from Terraform state (will be deleted with Resource Group)..."
+(cd terraform && terraform state rm azurerm_key_vault.kv) || echo "Key Vault not in state"
+(cd terraform && terraform state rm azurerm_key_vault_secret.databricks_app_id) || echo "Secret not in state"
+(cd terraform && terraform state rm azurerm_key_vault_secret.tenant_id) || echo "Secret not in state"
+
+# Use terraform destroy with -refresh=false to skip problematic storage account refreshes
+echo "Running terraform destroy (skipping refresh to avoid storage account errors)..."
+(cd terraform && terraform destroy -refresh=false --auto-approve) || echo "Main infrastructure destruction failed, but continuing..."
 
 # Handle Key Vault special case - purge any soft-deleted vaults
 echo "Checking for soft-deleted Key Vaults to purge..."
 VAULT_NAME="niotv1-dev-kv"
+RESOURCE_GROUP_NAME="niotv1-dev-rg"
 
 # Try to purge any soft-deleted key vault
 if az keyvault list-deleted --query "[?name=='$VAULT_NAME'].name" -o tsv | grep -q "$VAULT_NAME"; then
@@ -74,21 +132,22 @@ fi
 echo ""
 echo "Step 2: Deleting Service Principals..."
 
-SP_NAME="databricks-niotv1-sp"
-SP_ID=$(az ad sp list --display-name "$SP_NAME" --query '[].appId' -o tsv 2>/dev/null || echo "")
+# Check for multiple possible SP names
+SP_NAMES=("databricks-niotv1-sp" "databricks-niotv1-dev-databricks")
 
-if [ -n "$SP_ID" ]; then
-    echo "↳ Found Service Principal: $SP_NAME (ID: $SP_ID). Deleting..."
-    az ad sp delete --id "$SP_ID" || echo "SP deletion failed, but continuing..."
-    echo "✅ Service Principal deleted"
-else
-    echo "↳ No Service Principal found with name: $SP_NAME"
-fi
+for SP_NAME in "${SP_NAMES[@]}"; do
+    SP_ID=$(az ad sp list --display-name "$SP_NAME" --query '[].appId' -o tsv 2>/dev/null || echo "")
+    
+    if [ -n "$SP_ID" ]; then
+        echo "↳ Found Service Principal: $SP_NAME (ID: $SP_ID). Deleting..."
+        az ad sp delete --id "$SP_ID" || echo "SP deletion failed for $SP_NAME, but continuing..."
+        echo "✅ Service Principal $SP_NAME deleted"
+    else
+        echo "↳ No Service Principal found with name: $SP_NAME"
+    fi
+done
 
 # --- Step 3: Azure Resource Group Deletion ---
-# Define your Azure Resource Group name here for easy modification if needed.
-RESOURCE_GROUP_NAME="niotv1-dev-rg"
-
 echo ""
 echo "Step 3: Handling Azure Resource Group '$RESOURCE_GROUP_NAME'..."
 
@@ -135,6 +194,7 @@ echo "Cleaning up Terraform files..."
 find . -type d -name ".terraform" -prune -exec echo "Deleting directory: {}" \; -exec rm -rf {} \;
 find . -type f -name "terraform.tfstate*" -exec echo "Deleting file: {}" \; -exec rm -f {} \;
 find . -type f -name ".terraform.lock.hcl" -exec echo "Deleting file: {}" \; -exec rm -f {} \;
+
 # --- Step 5: Final cleanup ---
 echo ""
 echo "Step 5: Final cleanup..."

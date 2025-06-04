@@ -16,32 +16,32 @@ variable "environment" {
 
 variable "user_email" {
   description = "Email address of the Databricks user to add"
-  default     = "nathandiez12@gmail.com"
 }
 
 variable "databricks_host" {
   description = "The Databricks workspace URL"
-  default     = "https://adb-2163814500005731.11.azuredatabricks.net"
 }
 
 variable "azure_client_id" {
+  type        = string
+  sensitive   = true
   description = "Service Principal client ID"
-  default     = "a717bb97-8589-4524-b3d0-cdfde9392905"
 }
 
 variable "azure_client_secret" {
+  type        = string
+  sensitive   = true
   description = "Service Principal client secret"
-  default     = "ZOv8Q~U3TmrCG4ezu8nz4phv7vL_5kOji7fmXdlC"
 }
 
 variable "azure_tenant_id" {
+  type        = string
+  sensitive   = true
   description = "Azure Tenant ID"
-  default     = "49c1cf54-e6db-438a-87f3-efcbea077fd6"
 }
 
 variable "subscription_id" {
   description = "Azure Subscription ID"
-  default     = "b55db986-8fb7-4627-8ae4-f4a8ad081051"
 }
 
 ################################################################################

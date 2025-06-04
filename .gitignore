@@ -1,11 +1,24 @@
-# Environment files
+# Environment and Secrets
 .env
-*.env.local
+.env.*
+!.env.example
+*.key
+*.pem
+*.p12
+*.secrets
+
+# Azure and Service Principal files
+databricks-sp.json
+sp_credentials.json
+.azure/
+*.tfvars
+!terraform.tfvars.example
 
 # Terraform
-.terraform/
-*.tfstate*
+*.tfstate
+*.tfstate.*
 *.tfplan
+.terraform/
 .terraform.lock.hcl
 terraform/.terraform/
 terraform/databricks-rbac/.terraform/
@@ -15,7 +28,6 @@ terraform/databricks-rbac/.terraform/
 !.vscode/settings.json
 !.vscode/extensions.json
 
-
 # Build and publish output
 [Bb]in/
 [Oo]bj/
@@ -23,6 +35,7 @@ terraform/databricks-rbac/.terraform/
 [Rr]elease/
 publish/
 *.zip
+app.zip
 
 # Dependency directories
 node_modules/
@@ -51,8 +64,3 @@ selected_record.json
 *.dbc
 databricks-results-*.csv
 *.dbfs
-
-# Azure specific
-.azure/
-ServiceDefinition.csdef
-ServiceConfiguration.*.cscfg

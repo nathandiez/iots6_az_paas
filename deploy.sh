@@ -3,6 +3,16 @@
 
 set -ex
 
+# Load environment variables from .env file
+if [ -f ".env" ]; then
+    echo "Loading environment variables from .env..."
+    source .env
+    export TF_VAR_api_key
+    echo "✅ Environment variables loaded"
+else
+    echo "⚠️  No .env file found"
+fi
+
 # Initialize flags
 DEPLOY_ALL=true
 DEPLOY_API=false
